@@ -7,11 +7,16 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
-  "keywords": ["Telegram bot", "Telegraf", "MongoDB"],
+  "keywords": [
+    "Telegram bot",
+    "Telegraf",
+    "MongoDB"
+  ],
   "author": "yusage",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.0",
+    "express": "^4.17.3",
     "mongoose": "^6.2.8",
     "telegraf": "^4.7.0"
   },
