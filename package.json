@@ -1,14 +1,14 @@
 {
   "name": "pool-expenses-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Telegram bot for shared purchases tracking",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["Telegram bot", "Telegraf", "MongoDB"],
+  "author": "yusage",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.0",
@@ -18,5 +18,8 @@
   "devDependencies": {
     "eslint": "^8.11.0",
     "nodemon": "^2.0.15"
+  },
+  "engines": {
+    "node": "17.x"
   }
 }
