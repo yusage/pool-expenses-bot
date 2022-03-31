@@ -1,9 +1,10 @@
 const { Telegraf } = require('telegraf');
+require('dotenv').config();
 const setConnector = require('./connectors/setConnector');
 const installPublicBotCommands = require('./telegraf/middleware/publicCommands');
 const installHiddenBotCommands = require('./telegraf/middleware/hiddenCommand');
 
-const botToken = '5150454115:AAFRQflmTa9Fsrtk58Zj-6KG9VAI2CAt4Mw';
+const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 
 
@@ -17,10 +18,11 @@ async function main () {
 // run program
 main();
 
-// share bot invite link with invite to a pool
-
+// change dbLink and telegram Token for non-local
 // move some public bot commands to another file
 
-// deploy project to Git and Heroku
+// share bot invite link with invite to a pool
+
+// deploy project to Heroku
 
 // order records in plain list expense report
