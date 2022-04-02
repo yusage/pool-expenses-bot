@@ -275,12 +275,17 @@ function installPublicBotCommands (bot) {
             const activePoolUsers = await ctx.connector.getActivePoolUsers(ctx.pool);
 
             activePoolUsers.forEach((user) => {
-                ctx.telegram.sendMessage(user.chatId, [
-                    `➕ ${ctx.user.nick}: `,
-                    `${expense.amount} `,
-                    `${expense.currency}, `,
-                    `${expense.description}`
-                ].join(''));
+                try {
+                    ctx.telegram.sendMessage(user.chatId, [
+                        `➕ ${ctx.user.nick}: `,
+                        `${expense.amount} `,
+                        `${expense.currency}, `,
+                        `${expense.description}`
+                    ].join(''));
+                }
+                catch (err) {
+                    console.log(String(err));
+                }
             });
 
             next();

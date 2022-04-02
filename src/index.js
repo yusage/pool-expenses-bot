@@ -1,26 +1,17 @@
 const { Telegraf } = require('telegraf');
-const express = require('express');
-require('dotenv').config();
+require ('newrelic');
+
+const runExpress = require('./utils/runExpress');
 const setConnector = require('./connectors/setConnector');
 const installPublicBotCommands = require('./telegraf/middleware/publicCommands');
 const installHiddenBotCommands = require('./telegraf/middleware/hiddenCommand');
-
-const port = process.env.PORT || 3000;
-const expressApp = express();
 
 const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 
 
 async function main () {
-
-    expressApp.get('/', (req, res) => {
-        res.send('Hello World!');
-    });
-    expressApp.listen(port, () => {
-        console.log(`Listening on port ${port}`);
-    });
-
+    runExpress();
     bot.use(await setConnector('mongoose'));
     installPublicBotCommands(bot);
     installHiddenBotCommands(bot);
@@ -30,11 +21,12 @@ async function main () {
 // run program
 main();
 
-// change dbLink and telegram Token for non-local
 // move some public bot commands to another file
+
+// add GSheets integration
+
 
 // share bot invite link with invite to a pool
 
-// deploy project to Heroku
-
+// how to hide telegram Token on gitHub in historical files
 // order records in plain list expense report
