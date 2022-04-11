@@ -1,3 +1,4 @@
+const moment = require('moment');
 const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const User = require('../mongo-models/user');
@@ -12,9 +13,7 @@ class ConnectorMongo {
     async init () {
         await mongoose.connect(this.url, {
             useNewUrlParser: true,
-            // useCreateIndex: true,
             useUnifiedTopology: true,
-            // useFindAndModify: true
         });
     }
 
@@ -162,23 +161,16 @@ class ConnectorMongo {
     async readAllPoolExpenses (pool) {
         await pool.populate({
             path: 'expenses',
-            populate: {
-                path: 'users'
-            }
+            populate: { path: 'users' }
         });
 
-        const output = [];
-        pool.expenses.forEach((expense) => {
-            output.push({
-                date: expense.createdAt.toISOString().substring(0, 10),
-                user: expense.users[0].nick,
-                amount: expense.amount,
-                currency: expense.currency,
-                description: expense.description
-            });
-        });
-
-        return output;
+        return pool.expenses.map((expense) => ({
+            date: moment(expense.createdAt).format('YYYY.MM.DD'),
+            user: expense.users[0].nick,
+            amount: expense.amount,
+            currency: expense.currency,
+            description: expense.description
+        }));
     }
 
     async changeNickname (user, nickname) {

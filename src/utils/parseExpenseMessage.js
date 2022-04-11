@@ -42,8 +42,14 @@ function parseExpenseMessage (message, defaultCurrency) {
     }
 
     const amount = parseInt(amountText);
+    if (!amount) return;
+
     const currency = currencyText;
-    const description = descText;
+
+    while (descText[0] === ',' || descText[0] === ' ') {
+        descText = descText.substring(1);
+    }
+    const description = descText.trim();
 
     const parsedExpenses = {
         message,

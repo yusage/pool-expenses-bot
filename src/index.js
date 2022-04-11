@@ -1,38 +1,36 @@
 const { Telegraf } = require('telegraf');
-require ('newrelic');
 
-const runExpress = require('./utils/runExpress');
 const setConnector = require('./connectors/setConnector');
-const installPublicBotCommands = require('./telegraf/middleware/publicCommands');
-const installHiddenBotCommands = require('./telegraf/middleware/hiddenCommand');
-
-const botToken = process.env.BOT_TOKEN;
-const bot = new Telegraf(botToken);
-
-var http = require('http');
+const installBotMiddleware = require('./telegraf/middleware/_installBotMiddleware');
+const keepHerokuActive = require('./utils/keepHerokuActive');
 
 
 async function main () {
-    setInterval(function() {
-        console.log('accessing app webpage...');
-        http.get('http://yusage-pool-expense-bot.herokuapp.com');
-    }, 1200000); // every 20 minutes (1200000=1000*60*20)
-    runExpress();
+    if (!process.env.BOT_TOKEN) {
+        return console.log('process.env.BOT_TOKEN is not defined');
+    }
+
+    const botToken = process.env.BOT_TOKEN;
+    const bot = new Telegraf(botToken);
+
     bot.use(await setConnector('mongoose'));
-    installPublicBotCommands(bot);
-    installHiddenBotCommands(bot);
+
+    installBotMiddleware(bot);
+
     bot.launch();
+    keepHerokuActive(20);
 }
 
 // run program
 main();
 
-// move some public bot commands to another file
 
+// add app closing handling (ask Sasha)
+
+// add "Join pool" request & confirmation by pool owner
 // add GSheets integration
-
+// order records in plain list expense report
 
 // share bot invite link with invite to a pool
 
 // how to hide telegram Token on gitHub in historical files
-// order records in plain list expense report

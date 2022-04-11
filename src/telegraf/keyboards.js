@@ -57,7 +57,7 @@ const menuItemNames = {
 function getPlaceholder(pool) {
     let placeholder = '';
     if (pool) {
-        placeholder = `add expenses to "${pool.name}"`;
+        placeholder = `"${pool.name}": add expenses`;
     } else {
         placeholder = 'join some pool to start adding expenses';
     }

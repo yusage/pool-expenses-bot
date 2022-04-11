@@ -1,6 +1,6 @@
 const { mainMenuKeyboard } = require('../keyboards');
 
-function installHiddenBotCommands (bot) {
+function hiddenCommands (bot) {
 
     bot.command('joinPool', async ctx => {
         try {
@@ -62,4 +62,4 @@ function installHiddenBotCommands (bot) {
 
 }
 
-module.exports = installHiddenBotCommands;
+module.exports = hiddenCommands;

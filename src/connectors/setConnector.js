@@ -9,13 +9,13 @@ const setConnector = async (dbType) => {
         connector = new ConnectorMongo(url);
     } else if (dbType === 'sheets') {
         connector = new ConnectorSheets();
-    }
+    } else return;
 
     await connector.init();
 
-    return async (ctx, next) => {
+    return (ctx, next) => {
         ctx.connector = connector;
-        next();
+        return next();
     };
 };
 
