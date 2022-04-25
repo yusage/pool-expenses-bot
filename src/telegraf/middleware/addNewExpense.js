@@ -14,7 +14,7 @@ function addNewExpense(bot) {
     bot.on('text', async (ctx, next) => {
         if (textIsReserved(ctx.message.text)) return next();
 
-        if (!pool) {
+        if (!ctx.pool) {
             ctx.reply('Please join some pool before entering expenses');
             next();
         }
