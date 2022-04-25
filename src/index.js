@@ -2,8 +2,8 @@ const { Telegraf } = require('telegraf');
 
 const setDb = require('./db/setDb');
 const installBotMiddleware = require('./telegraf/middleware/_installBotMiddleware');
-const keepHerokuActive = require('./utils/keepHerokuActive');
 const initCurrencies = require('./utils/initCurrencies');
+const keepHerokuActive = require('./utils/keepHerokuActive');
 
 async function main () {
     if (!process.env.BOT_TOKEN) {

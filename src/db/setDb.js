@@ -1,4 +1,4 @@
-const MongoDB = require('./MongoDB');
+const MongoDB = require('./mongoDB');
 
 const setDb = async (dbType) => {
     let db = undefined;

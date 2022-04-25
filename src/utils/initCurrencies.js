@@ -13,10 +13,10 @@ function initCurrencies(db) {
                 `Currencies created: ${created.length}`,
             ].join(''));
             const defaultCurrenciesCode = process.env.DEFAULT_CURRENCIES.split(',');
-            console.log('Setting default currencies: ', defaultCurrenciesCode);
+            console.log('Setting default currencies...');
             return db.setDefaultCurrencies(defaultCurrenciesCode);
         }).then((defaultCurrencies) => {
-            console.log('Default currencies setted: ' + defaultCurrencies.map(c => c.currencyCode));
+            console.log('Default currencies set: ' + defaultCurrencies.map(c => c.currencyCode));
         })
         .catch((err) => {
             console.log(String(err));
