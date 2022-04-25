@@ -1,17 +1,16 @@
 const { Scenes: { BaseScene } } = require('telegraf');
 
-const {
-    menuItemNames,
-    switchPoolKeyboard,
-    poolSetupKeyboard,
-    mainMenuKeyboard
-} = require('../keyboards');
+const { mainMenuKeyboard } = require('../keyboards/mainMenuKb');
+const { myPoolsKeyboard } = require('../keyboards/myPoolsKb');
+const { switchPoolKeyboard, inlineKbNames } = require('../keyboards/inlineKb');
 
 const joinPoolScene = new BaseScene('joinPoolScene');
 
 joinPoolScene.enter(async ctx => {
     try {
-        ctx.scene.state.pool = await ctx.connector.findPoolById(ctx.message.text.substring(6));
+        ctx.scene.state.menu = myPoolsKeyboard(ctx.user, ctx.pool);
+
+        ctx.scene.state.pool = await ctx.db.findPoolById(ctx.message.text.substring(6));
 
         if (ctx.pool) {
             return ctx.reply([
@@ -20,76 +19,64 @@ joinPoolScene.enter(async ctx => {
             ].join(' '), switchPoolKeyboard);
         }
 
-        const pool = await ctx.connector.joinPool(ctx.scene.state.pool, ctx.user);
+        const pool = await ctx.db.joinPool(ctx.scene.state.pool, ctx.user);
 
         if (!pool) {
-            ctx.scene.state.result = 'error';
+            ctx.scene.state.output = 'Cannot join pool: Something went wrong';
             ctx.scene.state.pool = undefined;
             return ctx.scene.leave();
         }
 
         ctx.pool = pool;
         ctx.scene.state.pool = pool;
-        ctx.scene.state.result = 'joined';
+        ctx.scene.state.output = `✅ Pool <b>"${pool.name}"</b> joined`;
+        ctx.scene.state.menu = mainMenuKeyboard(ctx.user, ctx.pool);
 
         ctx.scene.leave();
     } catch (err) {
-        ctx.scene.state.result = String(err);
+        ctx.scene.state.output = String(err);
         ctx.scene.leave();
     }
 });
 
-joinPoolScene.action(menuItemNames.switchPoolInline.yAction, async ctx => {
+joinPoolScene.action(inlineKbNames.switchPoolInline.yAction, async ctx => {
     try {
         await ctx.answerCbQuery('');
         ctx.deleteMessage();
 
-        const pool = await ctx.connector.joinPool(ctx.scene.state.pool, ctx.user);
+        const pool = await ctx.db.joinPool(ctx.scene.state.pool, ctx.user);
 
         if (!pool) {
-            ctx.scene.state.result = 'error';
+            ctx.scene.state.output = 'Cannot join pool: Something went wrong';
             ctx.scene.state.pool = undefined;
             return ctx.scene.leave();
         }
 
         ctx.pool = pool;
-        ctx.scene.state.pool = pool;
-        ctx.scene.state.result = 'joined';
+        ctx.scene.state.output = `✅ Pool <b>"${pool.name}"</b> joined`;
+        ctx.scene.state.menu = mainMenuKeyboard(ctx.user, ctx.pool);
 
         ctx.scene.leave();
     } catch (err) {
-        ctx.scene.state.result = String(err);
+        ctx.scene.state.output = String(err);
         ctx.scene.leave();
     }
 });
 
-joinPoolScene.action(menuItemNames.switchPoolInline.nAction, async ctx => {
+joinPoolScene.action(inlineKbNames.switchPoolInline.nAction, async ctx => {
     try {
         await ctx.answerCbQuery('');
         ctx.deleteMessage();
-
-        ctx.scene.state.result = 'cancelled';
         return ctx.scene.leave();
     } catch (err) {
-        ctx.scene.state.result = String(err);
+        ctx.scene.state.output = String(err);
         return ctx.scene.leave();
     }
 });
 
 joinPoolScene.leave(async (ctx) => {
-    try {
-        if (ctx.scene.state.result === 'joined') {
-            ctx.replyWithHTML(`✅ Pool <b>"${ctx.scene.state.pool.name}"</b> joined`, mainMenuKeyboard(ctx.pool));
-        } else if (ctx.scene.state.result === 'error') {
-            ctx.reply(
-                'Cannot join pool: Something went wrong',
-                poolSetupKeyboard(ctx.pool)
-            );
-        } else {
-            ctx.reply(ctx.scene.state.result, poolSetupKeyboard(ctx.pool));
-        }
-    } catch (err) {
-        ctx.reply('Error while leaving joinPoolScene');
+    if (ctx.scene.state.output) {
+        await ctx.replyWithHTML(ctx.scene.state.output, ctx.scene.state.menu);
     }
 });
 

@@ -3,36 +3,50 @@ const mongoose = require('mongoose');
 const expenseSchema = new mongoose.Schema({
     message: {
         type: String,
-        required: true
+        required: true,
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'User',
     },
     poolId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Pool'
+        ref: 'Pool',
     },
     amount: {
-        type: Number
+        type: Number,
     },
     currency: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Currency',
     },
     description: {
-        type: String
-    }
+        type: String,
+    },
+    status: {
+        type: String,
+    },
 }, {
     timestamps: true
 });
 
-expenseSchema.virtual('users', {
-    ref: 'User',
-    localField: 'userId',
-    foreignField: '_id'
+expenseSchema.virtual('poolCurrencies', {
+    ref: 'PoolCurrency',
+    localField: 'poolId',
+    foreignField: 'pool',
+    justOne: false,
+    options: {
+        match: expense => ({
+            'currency': expense.currency,
+        }),
+    },
 });
+
+expenseSchema.set('toObject', { virtuals: true });
+expenseSchema.set('toJSON', { virtuals: true });
 
 const Expense = mongoose.model('Expense', expenseSchema);
 

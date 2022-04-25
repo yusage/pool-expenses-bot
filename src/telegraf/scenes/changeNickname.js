@@ -1,50 +1,42 @@
 const { Scenes: { BaseScene } } = require('telegraf');
 
-const {
-    menuItemNames,
-    cancelKeyboard,
-    poolSetupKeyboard
-} = require('../keyboards');
+const { userSettingsKbNames } = require('../keyboards/userSettingsKb');
+const { cancelKeyboard } = require('../keyboards/cancelKb');
+const { myPoolsKeyboard } = require('../keyboards/myPoolsKb');
 
 
 const changeNicknameScene = new BaseScene('changeNicknameScene');
 
 changeNicknameScene.enter(ctx => {
-    ctx.reply(menuItemNames.changeNickname.prompt, cancelKeyboard);
+    ctx.reply(userSettingsKbNames.changeNickname.prompt, cancelKeyboard);
 });
 
 changeNicknameScene.on('text', async ctx => {
     try {
+        ctx.scene.state.menu = myPoolsKeyboard(ctx.user, ctx.pool);
+
         const nickname = ctx.message.text;
         ctx.scene.state.result = 'error';
 
         if (nickname === 'Cancel') {
-            ctx.scene.state.result = 'cancelled';
+            ctx.scene.state.output = 'Nickname changing cancelled';
             return ctx.scene.leave();
         }
 
-        ctx.scene.state.user = await ctx.connector.changeNickname(ctx.user, nickname);
-        ctx.scene.state.result = 'success';
+        const user = await ctx.db.changeNickname(ctx.user, nickname);
+
+        ctx.scene.state.output = `Your nickname changed to <b>"${user.nick}"</b>`;
         ctx.scene.leave();
     } catch (err) {
-        ctx.scene.state.result = String(err);
+        ctx.scene.state.output = String(err);
         ctx.scene.leave();
     }
 });
 
 changeNicknameScene.leave(async (ctx) => {
-    if (ctx.scene.state.result === 'error') {
-        return ctx.reply('Cannot change nickname: Something went wrong', poolSetupKeyboard(ctx.pool));
+    if (ctx.scene.state.output) {
+        await ctx.replyWithHTML(ctx.scene.state.output, ctx.scene.state.menu);
     }
-
-    if (ctx.scene.state.result === 'cancelled') {
-        return ctx.reply('Nickname changing cancelled', poolSetupKeyboard(ctx.pool));
-    }
-
-    ctx.replyWithHTML(
-        `Your nickname changed to <b>"${ctx.scene.state.user.nick}"</b>`,
-        poolSetupKeyboard(ctx.pool)
-    );
 });
 
 

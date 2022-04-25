@@ -1,4 +1,6 @@
-function parseExpenseMessage (message, defaultCurrency) {
+const PoolCurrency = require('../mongo-models/poolCurrency');
+
+async function parseExpenseMessage (pool, message) {
     const msgParts = message.replace(/\s+/g, ' ').trim().split('');
 
     let activePart = 'amount';
@@ -32,19 +34,22 @@ function parseExpenseMessage (message, defaultCurrency) {
     });
 
     currencyText = currencyText.toLowerCase();
-    if (/(₴|ua.*|гр.*|г)/.test(currencyText)) currencyText = '₴';
-    if (/(\$|us.*|дол.*)/.test(currencyText)) currencyText = '$';
-    if (/(€|eu.*|ev.*|ев.*|єв*)/.test(currencyText)) currencyText = '€';
+    let currency = undefined;
 
-    if (!/(₴|\$|€)/.test(currencyText)) {
+    const poolCurrencies = await PoolCurrency.find({ pool: pool._id });
+
+    for (const c of poolCurrencies) {
+        const mask = new RegExp(c.mask);
+        if ( mask.test(currencyText) ) currency = c.currency;
+    }
+
+    if (!currency) {
         descText = currencyText + ' ' + descText;
-        currencyText = defaultCurrency;
+        currency = pool.mainCurrency._id;
     }
 
     const amount = parseInt(amountText);
     if (!amount) return;
-
-    const currency = currencyText;
 
     while (descText[0] === ',' || descText[0] === ' ') {
         descText = descText.substring(1);
